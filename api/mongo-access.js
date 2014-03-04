@@ -41,7 +41,13 @@ mongo.connect("mongodb://localhost:27017/tictactoe", function(err,_db){
 });
 
 function createGame( callback ){
-	gamesColl.insert(voidGame, function(err,doc){
+	gamesColl.insert({
+		"board": [
+			["","",""],
+			["","",""],
+			["","",""]
+		]
+	}, function(err,doc){
 		if( err ){
 			console.log( "error creating a game",err );
 			callback(null);

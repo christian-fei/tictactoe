@@ -100,6 +100,29 @@ server.post('/tictactoe', function(req,res){
 	});
 });
 
+///tictactoe/:gameid/field/:x/:y
+server.put("/tictactoe/:gameid/field/:x/:y", function(req,res){
+	var player = req.body;
+	console.log( player );
+	var params =  req.params,
+		gameid = params.gameid,
+		x = params.x,
+		y = params.y;
+	console.log( gameid,player,x,y );
+	mongoAccess.setField(gameid,player,x,y,function(data){
+		console.log( "setField", data );
+		if( data ){
+			res.send(data);
+		}else{
+			res.send({
+				"error": 4,
+				"message": "could not update field"
+			});
+		}
+		res.end();
+	});
+});
+
 //get the gamefield of an existing game
 server.get("/tictactoe/:gameid", function(req,res){
 	var id = req.params.gameid;
@@ -132,12 +155,14 @@ server.get("/tictactoe/:gameid/field/:x/:y", function(req,res){
 		}else{
 			res.send({
 				"error":3,
-				"message": "fuck"
+				"message": "field out of range"
 			});
 		}
 		res.end();
 	});
 });
+
+
 
 server.listen(config.api.port, function() {
 	console.log('API server listening at %s'.green.bold, server.url);

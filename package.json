@@ -1,4 +1,10 @@
 {
+  "author": "@christian_fei",
+  "license": "MIT",
+  "scripts": {
+    "http-api": "node api/http-api.js",
+    "start": "node app/server.js"
+  },
   "dependencies": {
     "restify": "^2.6.2",
     "express": "^3.4.8",

@@ -8,8 +8,8 @@
 
 I need methods for:
 
-- "creates a new ttt game" ()
-- "sets a field on a specific ttt game" (gameid,player,x,y)
+- "creates a new tictactoe game" ()
+- "sets a field on a specific tictactoe game" (gameid,player,x,y)
 - "get the gamefield of an existing game" (gameid)
 - "get the state of the field :x :y" (gameid,x,y)
 
@@ -41,6 +41,8 @@ mongo.connect("mongodb://localhost:27017/tictactoe", function(err,_db){
 	console.log( "connected to mongo".blue.bold );
 });
 
+
+//"creates a new tictactoe game"
 function createGame( callback ){
 	//fucking shit mongo
 	delete voidGame._id;
@@ -55,6 +57,45 @@ function createGame( callback ){
 	});
 }
 
+
+
+//"sets a field on a specific tictactoe game" (gameid,player,x,y)
+function setField(gameid,player,x,y,callback){
+	x = parseInt(x);
+	y = parseInt(y);
+
+	//normalize and fix
+	player = player == "0" ? "0" : "X";
+	//check if asshole
+	if( x < 0 || x > 2 || y < 0 || y > 2 ){
+		callback(null);
+		return;
+	}
+
+	try{
+		var realId = ObjectID(gameid);
+		var posString = "board."+ x +"."+ y;
+		var $set = {};
+		$set["board."+ x +"."+ y] = player;
+		console.log( realId );
+		gamesColl.update({_id: realId},{
+			$set:$set
+		}, function(err,doc){
+			console.log( "ok" );
+			console.log(err,doc);
+			callback({
+				"message": "field updated"
+			});
+		});
+	}catch(e){
+		console.log( "error" );
+		console.log( e );
+		callback(null);
+	}
+}
+
+
+//"get the gamefield of an existing game" (gameid)
 function getBoard( id, callback ){
 	try{
 		var realId = ObjectID(id);
@@ -69,6 +110,7 @@ function getBoard( id, callback ){
 }
 
 
+//"get the state of the field :x :y" (gameid,x,y)
 function getField( gameid, x, y, callback ){
 	try{
 		var realId = ObjectID(gameid);
@@ -79,11 +121,10 @@ function getField( gameid, x, y, callback ){
 			if( docs && docs[0] ){
 				console.log( "got data from getBoard".green.bold );
 				var board = docs[0].board;
-				console.log( board[y][x] );
-				if( board[y] != undefined && board[y][x] != undefined ){
-					callback( board[y][x] );
-				}else{
+				if( x < 0 || x > 2 || y < 0 || y > 2 ){
 					callback(null);
+				}else{
+					callback( board[y][x] );
 				}
 			}else{
 				callback(null);
@@ -99,5 +140,6 @@ function getField( gameid, x, y, callback ){
 module.exports = {
 	createGame: createGame,
 	getBoard: getBoard,
-	getField: getField
+	getField: getField,
+	setField: setField
 }

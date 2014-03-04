@@ -18,6 +18,7 @@ I need methods for:
 
 //dep
 var mongo = require("mongodb"),
+	ObjectID = mongo.ObjectID,
 	colors = require("colors"),
 	db, gamesColl;
 
@@ -45,16 +46,30 @@ function createGame( callback ){
 	delete voidGame._id;
 	gamesColl.insert(voidGame, function(err,doc){
 		if( err ){
-			console.log( "error creating a game",err );
+			console.log( "error creating a game".red,err );
 			callback(null);
 		}else{
-			console.log( "successfully created game", doc[0] );
+			console.log( "successfully created game".green, doc[0] );
 			callback( doc[0] );
 		}
 	});
 }
 
+function getGamefield( id, callback ){
+	try{
+		var realId = ObjectID(id);
+		gamesColl.find({_id: realId}).toArray(function(err,docs){
+			console.log( "got data from getGamefield".green.bold );
+			callback( docs[0] );
+		});
+	}catch(e){
+		console.log( e );
+		callback(null);
+	}
+}
+
 
 module.exports = {
-	createGame: createGame
+	createGame: createGame,
+	getGamefield: getGamefield
 }

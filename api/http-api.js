@@ -51,7 +51,8 @@
 var cr = require("../configReader"),
 	mongoAccess = require("./mongo-access.js");
 var restify = require("restify"),
-	server = restify.createServer();
+	server = restify.createServer(),
+	colors = require("colors");
 
 var config;
 try{
@@ -68,20 +69,51 @@ server.use(restify.gzipResponse());
 server.use(restify.queryParser());
 server.use(restify.bodyParser());
 
+
+/*
+                     __           
+   _________  __  __/ /____  _____
+  / ___/ __ \/ / / / __/ _ \/ ___/
+ / /  / /_/ / /_/ / /_/  __(__  ) 
+/_/   \____/\__,_/\__/\___/____/  
+                                  
+*/
+
+//creates a new ttt game
 server.post('/tictactoe', function(req,res){
 	mongoAccess.createGame( function(data){
-		console.log("got response from mongoAccess");
-		console.log(data);
 		if( data ){
+			console.log("got response from mongoAccess".green);
+			console.log(data);
+
 			data.id = data._id;
 			res.send(data);
 			res.end();
 		}else{
+			console.log("there was an error when creating the game".red);
 			res.send({
 				"error": 1,
 				"message": "there was an error creating the game"
 			});
 			res.end();
+		}
+	});
+});
+
+//get the gamefield of an existing game
+server.get("/tictactoe/:gameid", function(req,res){
+	var id = req.params.gameid;
+	mongoAccess.getGamefield(id, function(data){
+		console.log( data );
+		if( data ){
+			data.id = data._id;
+			res.send( data );
+			res.end();
+		}else{
+			res.send({
+				"message": "it seems like there is no such game field",
+				"error": 2
+			});
 		}
 	});
 });

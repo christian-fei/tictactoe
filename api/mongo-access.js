@@ -55,12 +55,39 @@ function createGame( callback ){
 	});
 }
 
-function getGamefield( id, callback ){
+function getBoard( id, callback ){
 	try{
 		var realId = ObjectID(id);
 		gamesColl.find({_id: realId}).toArray(function(err,docs){
-			console.log( "got data from getGamefield".green.bold );
+			console.log( "got data from getBoard".green.bold );
 			callback( docs[0] );
+		});
+	}catch(e){
+		console.log( e );
+		callback(null);
+	}
+}
+
+
+function getField( gameid, x, y, callback ){
+	try{
+		var realId = ObjectID(gameid);
+		x = parseInt(x);
+		y = parseInt(y);
+		console.log( x,y );
+		gamesColl.find({_id: realId}).toArray(function(err,docs){
+			if( docs && docs[0] ){
+				console.log( "got data from getBoard".green.bold );
+				var board = docs[0].board;
+				console.log( board[y][x] );
+				if( board[y] != undefined && board[y][x] != undefined ){
+					callback( board[y][x] );
+				}else{
+					callback(null);
+				}
+			}else{
+				callback(null);
+			}
 		});
 	}catch(e){
 		console.log( e );
@@ -71,5 +98,6 @@ function getGamefield( id, callback ){
 
 module.exports = {
 	createGame: createGame,
-	getGamefield: getGamefield
+	getBoard: getBoard,
+	getField: getField
 }

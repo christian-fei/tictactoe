@@ -103,7 +103,7 @@ server.post('/tictactoe', function(req,res){
 //get the gamefield of an existing game
 server.get("/tictactoe/:gameid", function(req,res){
 	var id = req.params.gameid;
-	mongoAccess.getGamefield(id, function(data){
+	mongoAccess.getBoard(id, function(data){
 		console.log( data );
 		if( data ){
 			data.id = data._id;
@@ -115,6 +115,27 @@ server.get("/tictactoe/:gameid", function(req,res){
 				"error": 2
 			});
 		}
+	});
+});
+
+//get the state of the field :x :y
+server.get("/tictactoe/:gameid/field/:x/:y", function(req,res){
+	var params =  req.params,
+		gameid = params.gameid,
+		x = params.x,
+		y = params.y;
+	console.log( "requesting field information", gameid, x, y);
+	mongoAccess.getField(gameid,x,y, function(data){
+		console.log( data );
+		if( data != null ){
+			res.send( data );
+		}else{
+			res.send({
+				"error":3,
+				"message": "fuck"
+			});
+		}
+		res.end();
 	});
 });
 
